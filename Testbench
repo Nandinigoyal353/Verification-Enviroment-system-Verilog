@@ -1,0 +1,41 @@
+module top;
+    logic clk;
+    dff_if dffif(clk);
+    d_flipflop dut (.clk(clk), .rst(dffif.rst), .d(dffif.d), .q(dffif.q));
+
+    mailbox gen2drv = new();
+    mailbox mon2scb = new();
+
+    generator gen;
+    driver drv;
+    monitor mon;
+    scoreboard scb;
+
+    // Clock generation
+    initial clk = 0;
+    always #5 clk = ~clk;
+
+    initial begin
+        // Instantiate classes
+        gen = new(gen2drv);
+        drv = new(dffif, gen2drv);
+        mon = new(dffif, mon2scb);
+        scb = new(mon2scb);
+
+        // Reset sequence
+        dffif.rst = 1;
+        dffif.d = 0;
+        repeat (2) @(posedge clk);
+        dffif.rst = 0;
+
+        // Run components
+        fork
+            gen.run();
+            drv.run();
+            mon.run();
+            scb.run();
+        join_none
+
+        #200 $finish;
+    end
+endmodule
