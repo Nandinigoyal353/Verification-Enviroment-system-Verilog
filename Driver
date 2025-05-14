@@ -1,0 +1,20 @@
+class driver;
+    virtual dff_if vif;
+    mailbox gen2drv;
+
+    function new(virtual dff_if vif, mailbox m);
+        this.vif = vif;
+        gen2drv = m;
+    endfunction
+
+    task run();
+        dff_tx tx;
+        forever begin
+            gen2drv.get(tx);
+            vif.rst <= tx.rst;
+            vif.d <= tx.d;
+            tx.display("DRIVER");
+            @(posedge vif.clk);
+        end
+    endtask
+endclass
