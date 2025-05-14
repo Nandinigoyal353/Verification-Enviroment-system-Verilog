@@ -1,0 +1,26 @@
+class scoreboard;
+    mailbox mon2scb;
+    bit q_ref;
+
+    function new(mailbox m);
+        mon2scb = m;
+        q_ref = 0;
+    endfunction
+
+    task run();
+        dff_tx tx;
+        forever begin
+            mon2scb.get(tx);
+            if (tx.rst)
+                q_ref = 0;
+            else
+                q_ref = tx.d;
+
+            #1; // Wait for DUT to update
+            if (top.dut.q !== q_ref)
+                $display("❌ MISMATCH: Expected = %0b, Got = %0b", q_ref, top.dut.q);
+            else
+                $display("✅ MATCH: Q = %0b", q_ref);
+        end
+    endtask
+endclass
