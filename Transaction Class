@@ -1,0 +1,8 @@
+class dff_tx;
+    rand bit d;
+    bit rst;
+
+    function void display(string tag);
+        $display("[%s] D = %0b, RST = %0b", tag, d, rst);
+    endfunction
+endclass
