@@ -1,0 +1,20 @@
+class monitor;
+    virtual dff_if vif;
+    mailbox mon2scb;
+
+    function new(virtual dff_if vif, mailbox m);
+        this.vif = vif;
+        mon2scb = m;
+    endfunction
+
+    task run();
+        dff_tx tx;
+        forever begin
+            @(posedge vif.clk);
+            tx = new();
+            tx.d = vif.d;
+            tx.rst = vif.rst;
+            mon2scb.put(tx);
+        end
+    endtask
+endclass
