@@ -1,19 +1,32 @@
 class generator;
-    mailbox gen2drv;
-    int num_transactions;
-
-    function new(mailbox m);
-        gen2drv = m;
-        num_transactions = 10;
-    endfunction
-
-    task run();
-        dff_tx tx;
-        repeat (num_transactions) begin
-            tx = new();
-            tx.randomize();
-            tx.rst = 0;
-            gen2drv.put(tx);
-        end
-    endtask
+  
+  mailbox #(transaction) mbx;
+  mailbox #(transaction) mbxref;
+  
+  transaction tr;
+  
+  event sconext;
+  event done;
+  
+  int count;
+  
+  function new(mailbox #(transaction) mbx, mailbox #(transaction) mbxref);
+    this.mbx=mbx;
+    this.mbxref=mbxref;
+  endfunction
+  
+  task run();
+    repeat(count) 
+      begin
+      tr=new();
+    assert(tr.randomize)
+      else 
+        $error ( "[GEN] : RANDOMIZATION FAILED");
+    mbx.put(tr);
+    mbxref.put(tr);
+    tr.display("GEN");
+        @(sconext);
+    end
+    ->done;
+  endtask
 endclass
