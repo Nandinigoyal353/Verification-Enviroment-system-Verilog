@@ -1,8 +1,16 @@
-class dff_tx;
-    rand bit d;
-    bit rst;
-
-    function void display(string tag);
-        $display("[%s] D = %0b, RST = %0b", tag, d, rst);
-    endfunction
+class transaction;
+  
+  randc logic din;
+  logic dout;
+  
+  function transaction copy();
+    copy=new();
+    copy.din=this.din;
+    copy.dout=this.dout;
+  endfunction
+  
+  function void display(string s);
+    $display("[%0s] DIN : %0d , DOUT : %0d", s, din, dout);
+  endfunction
+  
 endclass
